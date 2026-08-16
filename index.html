@@ -572,6 +572,7 @@
     border-bottom: 1px solid var(--border);
   }
   .kalip-kart:last-child { border-bottom: none; }
+  .kalip-ust-satir { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
   .kalip-en {
     font-size: 14.5px;
     font-weight: 600;
@@ -590,6 +591,23 @@
     border-radius: 6px;
     margin-top: 6px;
   }
+  .kalip-sesli-btn {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--ing);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .kalip-sesli-btn.calisiyor { background: color-mix(in srgb, var(--ing) 20%, transparent); animation: kalipSesNabiz 1s ease-in-out infinite; }
+  @keyframes kalipSesNabiz { 0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--ing) 35%, transparent)} 50%{box-shadow:0 0 0 6px transparent} }
   .ekle-form {
     display: flex;
     flex-direction: column;
@@ -2670,6 +2688,23 @@ const KALIP_TOHUM = [
   { en: "spin up a server", tr: "bir sunucu ayağa kaldırmak", k: "teknik" },
   { en: "as a rule of thumb", tr: "genel bir kural olarak", k: "teknik" },
   { en: "trade-off", tr: "ödünleşim / dengeleme", k: "teknik" },
+  { en: "single source of truth", tr: "tek doğru kaynak", k: "teknik" },
+  { en: "out of scope", tr: "kapsam dışı", k: "teknik" },
+  { en: "best practice", tr: "en iyi uygulama", k: "teknik" },
+  { en: "bottleneck", tr: "darboğaz", k: "teknik" },
+  { en: "scalable solution", tr: "ölçeklenebilir çözüm", k: "teknik" },
+  { en: "downtime", tr: "kesinti süresi", k: "teknik" },
+  { en: "on a case-by-case basis", tr: "duruma göre değişir", k: "teknik" },
+  { en: "proof of concept", tr: "kavram kanıtlama / pilot çalışma", k: "teknik" },
+  { en: "escalate the issue", tr: "sorunu üst mercie taşımak", k: "teknik" },
+  { en: "risk assessment", tr: "risk değerlendirmesi", k: "teknik" },
+  { en: "preventive maintenance", tr: "önleyici bakım", k: "teknik" },
+  { en: "hands-on experience", tr: "uygulamalı/sahada tecrübe", k: "teknik" },
+  { en: "in accordance with the regulation", tr: "yönetmeliğe uygun olarak", k: "teknik" },
+  { en: "there's a workaround for that", tr: "bunun için geçici bir çözüm var", k: "teknik" },
+  { en: "this is still under review", tr: "bu hâlâ inceleniyor", k: "teknik" },
+  { en: "let's rule that out first", tr: "önce onu ekarte edelim", k: "teknik" },
+  { en: "it's a known limitation", tr: "bu bilinen bir kısıtlama", k: "teknik" },
 
   // --- Sunum / Anlatım ---
   { en: "Let me walk you through...", tr: "sizi adım adım anlatayım", k: "sunum" },
@@ -2682,6 +2717,19 @@ const KALIP_TOHUM = [
   { en: "Let's dive into the details.", tr: "detaylara girelim", k: "sunum" },
   { en: "That brings me to my next point.", tr: "bu beni bir sonraki noktaya getiriyor", k: "sunum" },
   { en: "In other words...", tr: "başka bir deyişle", k: "sunum" },
+  { en: "Let's move on to the next slide.", tr: "bir sonraki slayta geçelim", k: "sunum" },
+  { en: "I want to draw your attention to...", tr: "dikkatinizi ...'e çekmek istiyorum", k: "sunum" },
+  { en: "As you can see here...", tr: "burada görebileceğiniz gibi", k: "sunum" },
+  { en: "That's a great question.", tr: "bu çok iyi bir soru", k: "sunum" },
+  { en: "Let me clarify that.", tr: "bunu netleştireyim", k: "sunum" },
+  { en: "To wrap things up...", tr: "toparlamak gerekirse", k: "sunum" },
+  { en: "I'd like to emphasize that...", tr: "şunu vurgulamak isterim ki", k: "sunum" },
+  { en: "Feel free to interrupt me.", tr: "isterseniz araya girebilirsiniz", k: "sunum" },
+  { en: "Let's take a five-minute break.", tr: "beş dakika ara verelim", k: "sunum" },
+  { en: "I'll hand it over to...", tr: "sözü ...'e bırakıyorum", k: "sunum" },
+  { en: "Correct me if I'm wrong, but...", tr: "yanlışsam düzeltin ama", k: "sunum" },
+  { en: "This ties back to what I said earlier.", tr: "bu, az önce söylediğime bağlanıyor", k: "sunum" },
+  { en: "Let's open the floor to questions.", tr: "şimdi soruları alalım", k: "sunum" },
 
   // --- Günlük Hayat ---
   { en: "I'll get back to you on that.", tr: "bu konuda sana dönüş yapacağım", k: "gunluk" },
@@ -2692,6 +2740,19 @@ const KALIP_TOHUM = [
   { en: "Let's play it by ear.", tr: "duruma göre karar verelim", k: "gunluk" },
   { en: "I'm on it.", tr: "hallediyorum / üzerindeyim", k: "gunluk" },
   { en: "Give me a second.", tr: "bir saniye ver", k: "gunluk" },
+  { en: "I couldn't agree more.", tr: "kesinlikle katılıyorum", k: "gunluk" },
+  { en: "That makes sense.", tr: "mantıklı", k: "gunluk" },
+  { en: "I'm not sure that's a good idea.", tr: "bunun iyi bir fikir olduğundan emin değilim", k: "gunluk" },
+  { en: "Sorry to bother you, but...", tr: "rahatsız ettiğim için üzgünüm ama", k: "gunluk" },
+  { en: "It depends on the situation.", tr: "duruma bağlı", k: "gunluk" },
+  { en: "I'll keep that in mind.", tr: "bunu aklımda tutacağım", k: "gunluk" },
+  { en: "Let's see how it goes.", tr: "bakalım nasıl gidecek", k: "gunluk" },
+  { en: "That's out of my hands.", tr: "bu benim elimde değil", k: "gunluk" },
+  { en: "I'll figure something out.", tr: "bir çözüm bulurum", k: "gunluk" },
+  { en: "Take your time.", tr: "acele etmene gerek yok", k: "gunluk" },
+  { en: "It's not a big deal.", tr: "önemli bir şey değil", k: "gunluk" },
+  { en: "I'll be right there.", tr: "hemen geliyorum", k: "gunluk" },
+  { en: "Can you say that again?", tr: "tekrar söyler misin?", k: "gunluk" },
 ];
 
 const KALIP_KULLANICI_ANAHTARI = 'atlas_kullanici_kaliplari';
@@ -2722,13 +2783,55 @@ function kalipListesiniCiz() {
     return;
   }
 
-  kutu.innerHTML = kaliplar.map(k => `
+  kutu.innerHTML = kaliplar.map((k, i) => `
     <div class="kalip-kart">
-      <div class="kalip-en">${k.en}</div>
-      <div class="kalip-tr">${k.tr}</div>
-      <span class="kalip-etiket" style="background:${KATEGORI_RENK[k.k]}22; color:${KATEGORI_RENK[k.k]}">${KATEGORI_ETIKET[k.k]}</span>
+      <div class="kalip-ust-satir">
+        <div>
+          <div class="kalip-en">${k.en}</div>
+          <div class="kalip-tr">${k.tr}</div>
+          <span class="kalip-etiket" style="background:${KATEGORI_RENK[k.k]}22; color:${KATEGORI_RENK[k.k]}">${KATEGORI_ETIKET[k.k]}</span>
+        </div>
+        <button class="kalip-sesli-btn" data-sesli-metin="${k.en.replace(/"/g, '&quot;')}" title="Sesli dinle" type="button">🔊</button>
+      </div>
     </div>`).join('');
 }
+
+// ---- SESLİ TELAFFUZ — tarayıcının yerleşik İngilizce sesiyle okur ----
+let atlasIngilizceSes = null;
+function atlasIngilizceSesiSec() {
+  const sesler = window.speechSynthesis?.getVoices() || [];
+  atlasIngilizceSes =
+    sesler.find(s => s.lang === 'en-US') ||
+    sesler.find(s => s.lang === 'en-GB') ||
+    sesler.find(s => s.lang?.startsWith('en')) ||
+    null;
+}
+if (window.speechSynthesis) {
+  atlasIngilizceSesiSec();
+  window.speechSynthesis.onvoiceschanged = atlasIngilizceSesiSec;
+}
+
+function kalipTelaffuzEt(metin, btnEl) {
+  if (!window.speechSynthesis) { atlasToast('Tarayıcın sesli okumayı desteklemiyor'); return; }
+  window.speechSynthesis.cancel();
+  const konusma = new SpeechSynthesisUtterance(metin);
+  konusma.lang = 'en-US';
+  if (atlasIngilizceSes) konusma.voice = atlasIngilizceSes;
+  konusma.rate = 0.92;
+  if (btnEl) {
+    btnEl.classList.add('calisiyor');
+    konusma.onend = () => btnEl.classList.remove('calisiyor');
+    konusma.onerror = () => btnEl.classList.remove('calisiyor');
+  }
+  window.speechSynthesis.speak(konusma);
+}
+
+document.getElementById('kalip-listesi').addEventListener('click', (e) => {
+  const btn = e.target.closest('.kalip-sesli-btn');
+  if (!btn) return;
+  kalipTelaffuzEt(btn.dataset.sesliMetin, btn);
+});
+
 
 document.getElementById('sozluk-arama').addEventListener('input', kalipListesiniCiz);
 
