@@ -1481,6 +1481,31 @@ html[data-theme="light"] nav.alt-bar button.aktif{
 .kilit-ipucu{font-size:11px;color:#5c7078;margin-top:14px;line-height:1.5}
 .kilit-hata{color:#e8746b;font-size:12px;margin-top:10px;min-height:16px}
 
+/* ============================================================
+   ATLAS — GERÇEK ÇIKMIŞ SINAVLAR (birebir gerçek sorular)
+   ============================================================ */
+.gecmis-sinav-kart{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:9px}
+.gecmis-sinav-ust{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.gecmis-sinav-baslik{font:700 14.5px 'Space Grotesk'}
+.gecmis-sinav-alt{font-size:11.5px;color:var(--text-dim);margin-top:2px}
+.gecmis-sinav-rozet{flex-shrink:0;font:700 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--isg) 15%,transparent);color:var(--isg);white-space:nowrap}
+.gecmis-sinav-en-iyi{font-size:11.5px;color:var(--text-dim);margin-bottom:10px}
+.sinav-sayac{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font:700 13px var(--mono)}
+.sinav-sayac.kritik{color:#e8746b}
+.sinav-soru-blok{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:10px}
+.sinav-soru-no{font:700 10px var(--mono);color:var(--text-dim);letter-spacing:.05em;margin-bottom:6px}
+.sinav-soru-metin{font-size:13.5px;line-height:1.55;margin-bottom:11px;white-space:pre-wrap}
+.sinav-secenek{display:flex;align-items:flex-start;gap:9px;padding:8px 9px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:12.5px;line-height:1.45}
+.sinav-secenek input{margin-top:2px;flex-shrink:0}
+.sinav-secenek.secili{border-color:var(--anlat);background:color-mix(in srgb,var(--anlat) 10%,transparent)}
+.sinav-secenek.dogru-cevap{border-color:#5cb87a;background:color-mix(in srgb,#5cb87a 12%,transparent)}
+.sinav-secenek.yanlis-secim{border-color:#e8746b;background:color-mix(in srgb,#e8746b 12%,transparent)}
+.sinav-isaretle-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0;margin-left:auto}
+.sinav-sonuc-ozet{text-align:center;padding:22px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:14px}
+.sinav-sonuc-puan{font:700 34px 'Space Grotesk';color:var(--anlat)}
+.sinav-sonuc-alt{font-size:12.5px;color:var(--text-dim);margin-top:4px}
+.sinav-filtre-satir{display:flex;gap:8px;margin-bottom:12px}
+
 </style>
 </head>
 <body>
@@ -1893,6 +1918,13 @@ html[data-theme="light"] nav.alt-bar button.aktif{
 
     <div id="konu-haritasi"></div>
 
+    <div class="kaynak-grup-basligi"><h3>Gerçek Çıkmış Sınavlar</h3></div>
+    <div class="kart" style="background:var(--surface-2); font-size:12px; color:var(--text-dim); line-height:1.5;">
+      Bu bölümdeki sorular yapay zeka tarafından üretilmemiştir — MEB Ölçme, Değerlendirme ve Sınav Hizmetleri Genel Müdürlüğü tarafından gerçekten uygulanmış Bilgisayar Mühendisi unvan değişikliği sınavlarından birebir alınmıştır, cevap anahtarlarıyla çapraz kontrol edilmiştir. Şu an 1 sınav yüklü, diğerleri (2017, 2020, Adalet, İçişleri) doğrulandıkça eklenecek.
+    </div>
+    <div id="gecmis-sinav-liste"></div>
+    <div id="gecmis-sinav-oturum" style="display:none;"></div>
+
     <div class="kaynak-grup-basligi">
       <h3>Soru Bankası (Konu Bazlı Çalışma)</h3>
     </div>
@@ -2047,7 +2079,7 @@ sekmeButonlari.forEach(buton => {
     // Kütüphane sekmesine girince kitap listesini çiz
     if (buton.dataset.hedef === 'kitap') abRender();
     // Sınav sekmesine girince konu haritası ve soru bankasını çiz
-    if (buton.dataset.hedef === 'sinav') { konuHaritasiniCiz(); soruListesiniCiz(); }
+    if (buton.dataset.hedef === 'sinav') { gecmisSinavListesiCiz(); konuHaritasiniCiz(); soruListesiniCiz(); }
     // Eğitim sekmesine girince konu listesi, notlar ve geçmişi çiz
     if (buton.dataset.hedef === 'egitim') { egitimKonuListesiniCiz(); egitimOzetCiz(); egitimListesiCiz(); }
   });
@@ -3272,6 +3304,207 @@ setTimeout(abRender,0);
    çözülmüştür. Teknik sorularda (16-50) güven yüksek; 1-5 ve 9 no'lu
    sorularda (dil bilgisi/tarih detayı) "guven: dusuk" ile işaretli -
    bunları ayrıca kontrol et. */
+
+const GECMIS_SINAVLAR = [
+  {
+    id: 'saglik-2015',
+    kurum: 'Sağlık Bakanlığı ve Bağlı Kuruluşları',
+    baslik: 'Unvan Değişikliği Sınavı — 8. Grup Bilgisayar Mühendisi',
+    tarih: '28.06.2015',
+    sure: 60,
+    secenekSayisi: 5,
+    sorular: [{"no": 1, "soru": "Aşağıdakilerden hangisi OSI modeli katmanlarından biri değildir?", "secenekler": {"A": "Sunum katmanı", "B": "Ağ katmanı", "C": "Sistem katmanı", "D": "Fiziksel katman", "E": "Uygulama katmanı"}, "cevap": "C"}, {"no": 2, "soru": "I. LAN II. MAN III. WAN IV.BAN V. PAN Yukarıdakilerden hangileri bilgisayar ağ türlerindendir?", "secenekler": {"A": "I ve II", "B": "I, II ve III", "C": "II, III ve IV", "D": "II, III ve V", "E": "I, II, III ve V"}, "cevap": "E"}, {"no": 3, "soru": "I.Yıldız (Star) topoloji II. Üçgen topoloji III. Halka (Ring) topoloji IV.Ağaç topoloji Yukarıdakilerden hangileri bilgisayar ağ topolojilerindendir?", "secenekler": {"A": "II, III ve IV", "B": "I, III ve IV", "C": "I ve II", "D": "III ve IV", "E": "II ve III"}, "cevap": "B"}, {"no": 4, "soru": "Aşağıdakilerden hangisi ethernet kablo teknolojilerinden biri değildir?", "secenekler": {"A": "10Base2", "B": "10BaseF", "C": "10BaseT", "D": "100BaseK", "E": "100BaseT"}, "cevap": "D"}, {"no": 5, "soru": "Sinyali bit seviyesinde yeniden ve daha güçlü olarak üretmek, yeniden zamanlamak için kullanılan network donanımına ne ad verilir?", "secenekler": {"A": "Repeater", "B": "Hub", "C": "Switch", "D": "Router", "E": "Socket"}, "cevap": "A"}, {"no": 6, "soru": "Aşağıdakilerden hangisi C tipi IP adreslerine örnek olarak verilebilir?", "secenekler": {"A": "49.19.22.156", "B": "127.83.25.1", "C": "160.75.10.110", "D": "193.168.10.53", "E": "128.94.100.10"}, "cevap": "D"}, {"no": 7, "soru": "Aşağıdaki cihazlardan hangisi MAC adresini kullanmaz?", "secenekler": {"A": "Modem", "B": "Hub", "C": "Switch", "D": "Router", "E": "Ethernet kartı"}, "cevap": "B"}, {"no": 8, "soru": "Bir problemi çözmek için hazırlanacak algoritmanın simgelerle ifade edilmesine ne denir?", "secenekler": {"A": "Kaynak Program", "B": "Derleme", "C": "Akış Şeması", "D": "Program Analizi", "E": "Programlama Dili"}, "cevap": "C"}, {"no": 9, "soru": "C programlama dilinde değişken tanımlama kuralları için aşağıdaki ifadelerden hangisi yanlıştır?", "secenekler": {"A": "Değişken isimleri 8 karakterden fazla olamaz.", "B": "Değişken isimleri rakamlar ile başlayamaz.", "C": "Değişken ismi içerisinde boşluk kullanılmaz.", "D": "Değişken isimleri içinde özel karakterler kullanılamaz.", "E": "C Programlama Dilinde özel komutlar değişken ismi olarak kullanılamaz."}, "cevap": "A"}, {"no": 10, "soru": "Aşağıdakilerden hangisinde nesne tabanlı programlarda kullanılan sarmalama (encapsulation) düzeyleri en genelden en özele olacak şekilde doğru sırada verilmiştir?", "secenekler": {"A": "protected<public<private", "B": "public<protected<private", "C": "public<private<protected", "D": "private<protected<public", "E": "protected<private<public"}, "cevap": "B"}, {"no": 11, "soru": "Bir programın derlenmesi sırasında ortaya çıkmayan, ancak çalışması sırasında istenilen sonucun üretilememesine sebep olan hatalara ne denir?", "secenekler": {"A": "Yazım Hataları", "B": "Çalışma Anı Hataları", "C": "Derleme Hataları", "D": "Değişken Hataları", "E": "Mantıksal Hatalar"}, "cevap": "E"}, {"no": 12, "soru": "int a[4]={10,20,30,40},t=0; void main() { for(i=1;i<=3;i++) t+=a[i]; printf(\"%d\",t); } C programlama dilinde verilen yukarıdaki fonksiyonun ekran çıktısı nedir?", "secenekler": {"A": "100", "B": "90", "C": "80", "D": "70", "E": "60"}, "cevap": "B"}, {"no": 13, "soru": "Aşağıdaki programlama dillerinden hangisi alt seviye bir programlama dilidir?", "secenekler": {"A": "Basic", "B": "Pascal", "C": "Delphi", "D": "Assembly", "E": "Java"}, "cevap": "D"}, {"no": 14, "soru": "Aşağıdakilerden hangisi nesneye yönelik bir programlama dilinin temel özelliklerinden biri değildir?", "secenekler": {"A": "Kalıtım/Miras (Inheritance)", "B": "Soyutlama (Abstraction)", "C": "Sınıflama (Classification)", "D": "Saklama (Encapsulation)", "E": "Çok Biçimlilik (Polymorphism)"}, "cevap": "C"}, {"no": 15, "soru": "for (int i = 1; i <= 5; i++) { if (i % 2== 0) continue; printf(\"%d \", i); } C programlama dilinde verilen yukarıdaki program parçasının ekran çıktısı nedir?", "secenekler": {"A": "1 3 5", "B": "2 4 5", "C": "1 2 3 4", "D": "5 4 3 2 1", "E": "1 2 3 4 5"}, "cevap": "A"}, {"no": 16, "soru": "Java programlama dilinde tanımlanan public class Sınıf {…} sınıf şablonuna göre kurucu/ yapıcı (constructor) metot tanımlaması aşağıdakilerden hangisi olabilir?", "secenekler": {"A": "char Sınıf()", "B": "int Sınıf()", "C": "private Sınıf()", "D": "public Sınıf()", "E": "void Sınıf()"}, "cevap": "D"}, {"no": 17, "soru": "Bir nesne örneğinin hangi nesneye bağlandığı ve hangi nesneye ait olduğunun çalışma zamanında (run time) belli olmasına ne denir?", "secenekler": {"A": "Soyutlama (Abstraction)", "B": "Statik Bağlama (Static Binding)", "C": "Geç Bağlama (Late Binding)", "D": "Arayüz (Interface)", "E": "Açıktan Tanımlama (Explicit Decleration)"}, "cevap": "E"}, {"no": 18, "soru": "Aşağıdakilerden hangisi veri tabanı programlarından biri değildir?", "secenekler": {"A": "Mysql", "B": "SQL Server", "C": "Oracle", "D": "dBase", "E": "PL/SQL"}, "cevap": "D"}, {"no": 19, "soru": "Aşağıdaki SQL komut eşleşmelerinden hangisi doğrudur?", "secenekler": {"A": "CREATE-FROM", "B": "INSERT-INTO", "C": "SELECT-INTO", "D": "DELETE-SET", "E": "UPDATE-TO"}, "cevap": "B"}, {"no": 20, "soru": "Bir veri tabanında bilgilerin saklandığı veritabanı nesnesine ne ad verilir?", "secenekler": {"A": "Dosya", "B": "Alan", "C": "Tablo", "D": "Satır", "E": "Kolon"}, "cevap": "C"}, {"no": 21, "soru": "\"abcadacca\" metni huffman şıkıştırma algoritması ile sıkıştırıldığında kaç bitle ifade edilir?", "secenekler": {"A": "13", "B": "14", "C": "15", "D": "16", "E": "17"}, "cevap": "E"}, {"no": 22, "soru": "Aşağıdaki şifreleme algoritmalarından hangisi herkesin erişebileceği bir açık anahtar (public key) ve sadece kullanan tarafından bilinen gizli anahtar (private key) yapısı kullanır?", "secenekler": {"A": "RSA", "B": "Vigenere", "C": "LZW", "D": "Huffman", "E": "Sezar"}, "cevap": "A"}, {"no": 23, "soru": "Çizge (graf) yapıları için aşağıdakilerden hangisi yanlıştır?", "secenekler": {"A": "Graf, matematiksel anlamda, düğümlerden ve bu düğümler arasındaki ilişkiyi gösteren kenarlardan oluşan bir kümedir.", "B": "Yönsüz, paralel kenar olmayan ve döngü içermeyen çizgelere basit (simple) çizge denir.", "C": "Yönsüz, paralel kenarı olan ve döngü içermeyen çizgelere çoklu (multi) çizge denir.", "D": "Her bir kenarına nümerik bir değer, ağırlık verilmiş çizgelere ağırlıklı (weighted) çizge denir.", "E": "Yönsüz, paralel kenarı olan ve döngü içeren çizgelere bağlantılı (connected) çizge denir."}, "cevap": "E"}, {"no": 24, "soru": "I. Herhangi bir uzunlukta değer alabilmelidir. II. Çıktı olarak belirlenen uzunlukta anahtar (key) üretebilmelidir. III. Fonksiyon tarafından üretilen anahtardan fonksiyona verilen değer elde edilmelidir. IV. Çatışmalara (collision) olanak vermemelidir. Yukarıdakilerden hangileri verilere doğrudan erişim sürecinde kullanılan hash (çırpı) fonksiyonlarının özellikleri arasında yer alır?", "secenekler": {"A": "I ve II", "B": "II ve III", "C": "I, II ve III", "D": "I, II ve IV", "E": "I, II, III ve IV"}, "cevap": "D"}, {"no": 25, "soru": "Belirli bir problemi çözmek veya belirli bir amaca ulaşmak amacıyla adım adım uygulanan kurallar dizisine ne nedir?", "secenekler": {"A": "Algoritma", "B": "Program", "C": "Akış Şeması", "D": "Derleme", "E": "Döngü"}, "cevap": "A"}, {"no": 26, "soru": "Ardışık iki tek doğal sayının toplamı aşağıdakilerden hangisi olabilir?", "secenekler": {"A": "109", "B": "110", "C": "111", "D": "112", "E": "113"}, "cevap": "D"}, {"no": 27, "soru": "ab ve ba iki basamaklı sayılardır. ab+ba=154 ve ab-ba=36 olduğuna göre a.b sonucu aşağıdakilerden hangisidir?", "secenekler": {"A": "27", "B": "36", "C": "45", "D": "48", "E": "56"}, "cevap": "C"}, {"no": 28, "soru": "2893 sayısının 16 tabanındaki yazılışı aşağıdakilerden hangisidir?", "secenekler": {"A": "AB2", "B": "B35", "C": "EA2", "D": "1FF", "E": "B4D"}, "cevap": "E"}, {"no": 29, "soru": "Aritmetik ortalaması 3 ve harmonik ortalaması 12 olan iki sayının geometrik ortalaması kaçtır?", "secenekler": {"A": "5", "B": "6", "C": "7", "D": "8", "E": "9"}, "cevap": "B"}, {"no": 30, "soru": "12 ve x sayıları aralarında asaldır. Bu sayıların OKEK'i 300 olduğuna göre, x sayısı kaçtır?", "secenekler": {"A": "15", "B": "20", "C": "25", "D": "35", "E": "40"}, "cevap": "C"}, {"no": 31, "soru": "Tek bir fiziksel işlemcinin çok sayıda komut zincirini eş zamanlı olarak işlemesi ile performans artışına olanak sağlayan teknoloji aşağıdakilerden hangisidir?", "secenekler": {"A": "Hyper-threading", "B": "Flex", "C": "Megahertz", "D": "Clock", "E": "BIOS"}, "cevap": "A"}, {"no": 32, "soru": "İçeriği bir kez yazılıp bir daha değiştirilemeyen salt okunur bellek çeşidi aşağıdakilerden hangisidir?", "secenekler": {"A": "RAM", "B": "EPROM", "C": "EEPROM", "D": "PROM", "E": "SDRAM"}, "cevap": "D"}, {"no": 33, "soru": "Aşağıdakilerden hangisi bir mikroişlemcinin temel bileşenlerinden biri değildir?", "secenekler": {"A": "Aritmetik Mantıksal Birimi (ALU)", "B": "Kaydediciler (Register)", "C": "Veri Yolları (Data Bus)", "D": "Adres Yolları (Adress Bus)", "E": "Megahertz"}, "cevap": "E"}, {"no": 34, "soru": "Aşağıdakilerden hangisi hem girdi hem de çıktı birimidir?", "secenekler": {"A": "Ekran Kartı", "B": "Yazıcı", "C": "Klavye", "D": "Flash Disk", "E": "Ekran"}, "cevap": "D"}, {"no": 35, "soru": "Aşağıdakilerden hangisi bir flip flop çeşidi değildir?", "secenekler": {"A": "JK flip flop", "B": "AB flip flop", "C": "RS flip flop", "D": "D flip flop", "E": "T flip flop"}, "cevap": "B"}, {"no": 36, "soru": "Aşağıdakilerden hangisi bir işletim sistemidir?", "secenekler": {"A": "Excel", "B": "Access", "C": "Pardus", "D": "Basic", "E": "Java"}, "cevap": "C"}, {"no": 37, "soru": "Bilgisayar sisteminde bir işletim sisteminin birden fazla sayıda işlemi aynı anda işletime alabilmesi (çalıştırabilmesi) özelliğine ne ad verilir?", "secenekler": {"A": "İşlem (Process)", "B": "Çoklu Görev (Multitasking)", "C": "Çoklu Kullanım (Multithreading)", "D": "Çoklu Model (Multimodel)", "E": "Görev (Task)"}, "cevap": "B"}, {"no": 38, "soru": "Windows 7 işletim sisteminde bir dosyaya ait özellikler Mouse yardımıyla nasıl öğrenilir?", "secenekler": {"A": "Sağ tuş-özellikler", "B": "Sağ tuş-birlikte aç-özellikler", "C": "Sol tuş-aç-özellikler", "D": "Sol tuş-birlikte aç-özellikler", "E": "Sol tuş-özellikler"}, "cevap": "E"}, {"no": 39, "soru": "Yığın (stack) veri yapısı için aşağıdaki ifadelerden hangisi doğrudur?", "secenekler": {"A": "Yığına ilk eklenen eleman yığının ilk ulaşılacak elemanıdır.", "B": "Yığına son eklenen eleman yığının son ulaşılacak elemanıdır.", "C": "Yığına ilk eklenen eleman yığının son ulaşılacak elemanıdır.", "D": "Yığın veri yapısı yalnızca dizi tanımlamaları ile oluşturulabilir.", "E": "Yığın yapısında yer alacak elemanlar aynı tipte olmak zorundadır."}, "cevap": "C"}, {"no": 40, "soru": "Özyinelemeli (recursive) fonksiyonlar için aşağıdaki ifadelerden hangisi yanlıştır?", "secenekler": {"A": "Özyinelemeli fonksiyonlar kendi kendini çağırırlar.", "B": "İteratif bir fonksiyon özyinelemeli fonksiyona dönüştürülebilir.", "C": "Özyinelemeli fonksiyonlarda bitme koşulu (termination condition) olması zorunludur.", "D": "Özyinelemeli fonksiyonlar iteratif fonksiyonlara göre her zaman avantajlıdır.", "E": "Özyinelemeli bir fonksiyon iteratif bir fonksiyona yığın yapısı (stack) kullanılarak dönüştürülebilir."}, "cevap": "D"}, {"no": 41, "soru": "Aşağıdakilerden hangisi bir web sunucu yazılımıdır?", "secenekler": {"A": "Apache", "B": "Frontpage", "C": "Dreamweaver", "D": "Internet Explorer", "E": "Mysql"}, "cevap": "A"}, {"no": 42, "soru": "Bir HTLM belgesinde link, başlık ve web sayfası ile ilgili temel özelliklerin olduğu bölüm hangi etiketlerle sınırlandırılır?", "secenekler": {"A": "<TITLE>", "B": "<HEAD>", "C": "<SCRIPT>", "D": "<TABLE>", "E": "<BODY>"}, "cevap": "B"}, {"no": 43, "soru": "Aşağıdakilerden hangisi HTML form elemanlarından biri değildir?", "secenekler": {"A": "Textbox", "B": "Button", "C": "Textarea", "D": "Select", "E": "Insert"}, "cevap": "E"}, {"no": 44, "soru": "Aşağıdakilerden hangisi PHP'nin konfigürasyon bilgilerini barındıran ayar dosyasıdır?", "secenekler": {"A": "phpcfg.php", "B": "php.ini", "C": "php.info", "D": "php.exe", "E": "php.cfg"}, "cevap": "A"}, {"no": 45, "soru": "Bir web projesi internet ortamında hangi bilgisayar üzerinde yayınlanır?", "secenekler": {"A": "Sunucu (server)", "B": "İstemci (client)", "C": "Veri tabanı", "D": "Framework", "E": "PHP"}, "cevap": "B"}, {"no": 46, "soru": "Aşağıdakilerden hangisi yazılım geliştirme süreç modellerinden biri değildir?", "secenekler": {"A": "Aşağıdan-yukarıya (botton-up) model", "B": "V modeli", "C": "Spiral model", "D": "Barok modeli", "E": "Şelale/çağlayan modeli"}, "cevap": "A"}, {"no": 47, "soru": "Aşağıdakilerden hangisi Chidamber & Kemerer (CK) Metrik Kümesi tanımlamalarından biridir?", "secenekler": {"A": "Soyutlanmış sınıf sayısı", "B": "Kazanılmış değer hesaplamaları", "C": "Nesne sınıfları arasındaki bağımlılık", "D": "Testi yapılan yazılımın büyüklüğü", "E": "Testi yapılan yazılımın kalitesi"}, "cevap": "C"}, {"no": 48, "soru": "Aşağıdakilerden hangisi yazılım türlerinden biri değildir?", "secenekler": {"A": "Sistem Yazılımları", "B": "Gömülü Yazılımlar", "C": "Uygulama Yazılımları", "D": "Mühendislik Yazılımları", "E": "Soyut Yazılımlar"}, "cevap": "E"}, {"no": 49, "soru": "I. Tasarım II.Bakım III.Analiz/Çözümleme IV.Test V.Gerçekleme/Uygulama Yukarıda verilen yazılım süreçleri adımlarının doğru sıralanışı aşağıdakilerden hangisinde verilmiştir?", "secenekler": {"A": "I-II-III-IV-V", "B": "I-III-II-V-IV", "C": "III-V-I-II-IV", "D": "III-I-V-IV-II", "E": "IV-V-II-I-III"}, "cevap": "D"}, {"no": 50, "soru": "Aşağıdakilerden hangisi Tümleşik Modelleme Dili (UML)'de kullanılan diyagramlardan biri değildir?", "secenekler": {"A": "Kesişim (Intersaction) Diyagramları", "B": "Durum (State) Diyagramları", "C": "Bileşen (Component) Diyagramları", "D": "Sınıf (Class) Diyagramları", "E": "Kullanım Durum (Use Case) Diyagramları"}, "cevap": "A"}]
+
+  },
+];
+
+const SINAV_ISARET_ANAHTARI = 'atlas_sinav_isaretli';
+const SINAV_SONUC_GECMISI_ANAHTARI = 'atlas_sinav_gecmis_skorlar';
+let aktifOturumSinavId = null;
+let aktifOturumCevaplar = {};
+let aktifOturumSayacId = null;
+let aktifOturumBitisZamani = null;
+
+function sinavIsaretliGetir() {
+  const ham = localStorage.getItem(SINAV_ISARET_ANAHTARI);
+  return ham ? JSON.parse(ham) : {};
+}
+function sinavIsaretToggle(sinavId, soruNo) {
+  const isaretli = sinavIsaretliGetir();
+  const anahtar = sinavId + ':' + soruNo;
+  if (isaretli[anahtar]) delete isaretli[anahtar];
+  else isaretli[anahtar] = true;
+  localStorage.setItem(SINAV_ISARET_ANAHTARI, JSON.stringify(isaretli));
+  return !!isaretli[anahtar];
+}
+
+function sinavSkorGecmisiGetir() {
+  const ham = localStorage.getItem(SINAV_SONUC_GECMISI_ANAHTARI);
+  return ham ? JSON.parse(ham) : {};
+}
+function sinavSkorKaydet(sinavId, dogruSayisi, toplamSoru) {
+  const gecmis = sinavSkorGecmisiGetir();
+  const eskiEnIyi = gecmis[sinavId]?.enIyi || 0;
+  gecmis[sinavId] = {
+    enIyi: Math.max(eskiEnIyi, dogruSayisi),
+    sonDeneme: dogruSayisi,
+    toplam: toplamSoru,
+    tarih: bugununAnahtari(),
+  };
+  localStorage.setItem(SINAV_SONUC_GECMISI_ANAHTARI, JSON.stringify(gecmis));
+}
+
+function gecmisSinavListesiCiz() {
+  const kutu = document.getElementById('gecmis-sinav-liste');
+  const gecmisSkor = sinavSkorGecmisiGetir();
+  kutu.innerHTML = GECMIS_SINAVLAR.map(s => {
+    const skor = gecmisSkor[s.id];
+    return `
+      <div class="gecmis-sinav-kart">
+        <div class="gecmis-sinav-ust">
+          <div>
+            <div class="gecmis-sinav-baslik">${s.kurum}</div>
+            <div class="gecmis-sinav-alt">${s.baslik} · ${s.tarih} · ${s.sorular.length} soru / ${s.sure} dk</div>
+          </div>
+          <div class="gecmis-sinav-rozet">Gerçek Sınav</div>
+        </div>
+        ${skor ? `<div class="gecmis-sinav-en-iyi">En iyi sonucun: <b>${skor.enIyi}/${skor.toplam}</b> · son deneme: ${skor.sonDeneme}/${skor.toplam} (${skor.tarih})</div>` : ''}
+        <button class="eylem" data-sinav-baslat="${s.id}" type="button">${skor ? 'Tekrar Çöz' : 'Sınavı Başlat'}</button>
+      </div>`;
+  }).join('');
+
+  kutu.querySelectorAll('[data-sinav-baslat]').forEach(btn => {
+    btn.addEventListener('click', () => gecmisSinavBaslat(btn.dataset.sinavBaslat));
+  });
+}
+
+function gecmisSinavBaslat(sinavId) {
+  const sinav = GECMIS_SINAVLAR.find(s => s.id === sinavId);
+  if (!sinav) return;
+  aktifOturumSinavId = sinavId;
+  aktifOturumCevaplar = {};
+  aktifOturumBitisZamani = Date.now() + sinav.sure * 60 * 1000;
+
+  document.getElementById('gecmis-sinav-liste').style.display = 'none';
+  const oturum = document.getElementById('gecmis-sinav-oturum');
+  oturum.style.display = 'block';
+  const isaretli = sinavIsaretliGetir();
+
+  oturum.innerHTML = `
+    <div class="sinav-sayac" id="sinav-sayac">
+      <span>${sinav.kurum} — ${sinav.tarih}</span>
+      <span id="sinav-sayac-metin">60:00</span>
+    </div>
+    <div id="sinav-soru-container">
+      ${sinav.sorular.map(soru => {
+        const isaretliMi = !!isaretli[sinavId + ':' + soru.no];
+        return `
+        <div class="sinav-soru-blok" data-soru-no="${soru.no}">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="sinav-soru-no">SORU ${soru.no} / ${sinav.sorular.length}</div>
+            <button class="sinav-isaretle-btn ${isaretliMi ? 'aktif' : ''}" data-isaretle="${soru.no}" type="button" title="Tekrar etmek için işaretle">${isaretliMi ? '★' : '☆'}</button>
+          </div>
+          <div class="sinav-soru-metin">${egitimEsc(soru.soru)}</div>
+          ${Object.entries(soru.secenekler).map(([harf, metin]) => `
+            <label class="sinav-secenek" data-harf="${harf}">
+              <input type="radio" name="soru-${soru.no}" value="${harf}">
+              <span><b>${harf})</b> ${egitimEsc(metin)}</span>
+            </label>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="eylem" id="btn-sinav-gonder" style="margin:10px 0 30px;">Sınavı Bitir ve Gönder</button>
+  `;
+
+  // Cevap seçimi
+  oturum.querySelectorAll('input[type=radio]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const soruNo = parseInt(e.target.name.replace('soru-', ''), 10);
+      aktifOturumCevaplar[soruNo] = e.target.value;
+      const blok = e.target.closest('.sinav-soru-blok');
+      blok.querySelectorAll('.sinav-secenek').forEach(el => el.classList.remove('secili'));
+      e.target.closest('.sinav-secenek').classList.add('secili');
+    });
+  });
+
+  // İşaretleme (tekrar etmek istediklerin)
+  oturum.querySelectorAll('[data-isaretle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const soruNo = btn.dataset.isaretle;
+      const yeniDurum = sinavIsaretToggle(sinavId, soruNo);
+      btn.textContent = yeniDurum ? '★' : '☆';
+      btn.classList.toggle('aktif', yeniDurum);
+    });
+  });
+
+  document.getElementById('btn-sinav-gonder').addEventListener('click', () => gecmisSinavGonder(sinavId));
+
+  // Geri sayım
+  if (aktifOturumSayacId) clearInterval(aktifOturumSayacId);
+  aktifOturumSayacId = setInterval(() => {
+    const kalanMs = aktifOturumBitisZamani - Date.now();
+    const sayacEl = document.getElementById('sinav-sayac-metin');
+    if (kalanMs <= 0) {
+      clearInterval(aktifOturumSayacId);
+      if (sayacEl) sayacEl.textContent = '00:00';
+      gecmisSinavGonder(sinavId);
+      return;
+    }
+    const kalanSn = Math.floor(kalanMs / 1000);
+    const dk = String(Math.floor(kalanSn / 60)).padStart(2, '0');
+    const sn = String(kalanSn % 60).padStart(2, '0');
+    if (sayacEl) {
+      sayacEl.textContent = `${dk}:${sn}`;
+      document.getElementById('sinav-sayac').classList.toggle('kritik', kalanSn < 300);
+    }
+  }, 1000);
+
+  oturum.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function gecmisSinavGonder(sinavId) {
+  if (aktifOturumSayacId) { clearInterval(aktifOturumSayacId); aktifOturumSayacId = null; }
+  const sinav = GECMIS_SINAVLAR.find(s => s.id === sinavId);
+  if (!sinav) return;
+
+  let dogruSayisi = 0;
+  const detaylar = sinav.sorular.map(soru => {
+    const verilenCevap = aktifOturumCevaplar[soru.no] || null;
+    const dogruMu = verilenCevap === soru.cevap;
+    if (dogruMu) dogruSayisi++;
+    return { soru, verilenCevap, dogruMu };
+  });
+
+  sinavSkorKaydet(sinavId, dogruSayisi, sinav.sorular.length);
+
+  const oturum = document.getElementById('gecmis-sinav-oturum');
+  const yuzde = Math.round((dogruSayisi / sinav.sorular.length) * 100);
+  oturum.innerHTML = `
+    <div class="sinav-sonuc-ozet">
+      <div class="sinav-sonuc-puan">${dogruSayisi}/${sinav.sorular.length}</div>
+      <div class="sinav-sonuc-alt">%${yuzde} doğru · ${sinav.kurum} (${sinav.tarih})</div>
+    </div>
+    <div class="kaynak-grup-basligi"><h3>Soru Bazlı İnceleme</h3></div>
+    ${detaylar.map(d => `
+      <div class="sinav-soru-blok">
+        <div class="sinav-soru-no">SORU ${d.soru.no} ${d.dogruMu ? '· ✓ Doğru' : (d.verilenCevap ? '· ✗ Yanlış' : '· Boş bırakıldı')}</div>
+        <div class="sinav-soru-metin">${egitimEsc(d.soru.soru)}</div>
+        ${Object.entries(d.soru.secenekler).map(([harf, metin]) => {
+          let sinif = 'sinav-secenek';
+          if (harf === d.soru.cevap) sinif += ' dogru-cevap';
+          else if (harf === d.verilenCevap) sinif += ' yanlis-secim';
+          return `<div class="${sinif}"><span><b>${harf})</b> ${egitimEsc(metin)}</span></div>`;
+        }).join('')}
+      </div>`).join('')}
+    <button class="eylem ikincil" id="btn-sinav-kapat" style="margin:14px 0 30px;">Sınav Listesine Dön</button>
+  `;
+  document.getElementById('btn-sinav-kapat').addEventListener('click', () => {
+    oturum.style.display = 'none';
+    document.getElementById('gecmis-sinav-liste').style.display = 'block';
+    gecmisSinavListesiCiz();
+  });
+  oturum.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 const KONU_LISTESI = [
   { key: 'turkce',       ad: 'Türkçe Dil Bilgisi',                agirlik: 5 },
