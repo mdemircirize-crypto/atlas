@@ -804,6 +804,43 @@
   }
   .konu-bar-ic { height: 100%; background: var(--anlat); }
 
+  /* ============ KONU AKORDEONU (temiz liste, tıkla-aç) ============ */
+  .konu-akordeon { border-bottom: 1px solid var(--border); }
+  .konu-akordeon:first-child { border-top: 1px solid var(--border); }
+  .konu-akordeon-baslik {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 2px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .konu-akordeon-ok {
+    flex-shrink: 0;
+    font-size: 16px;
+    color: var(--text-dim);
+    transition: transform .18s ease;
+    width: 14px;
+  }
+  .konu-akordeon.acik .konu-akordeon-ok { transform: rotate(90deg); color: var(--anlat); }
+  .konu-akordeon-ad { flex: 1; font: 600 13.5px 'Space Grotesk'; color: var(--text); }
+  .konu-akordeon-sag { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  .konu-akordeon-yuzde { font: 700 11px var(--mono); }
+  .konu-akordeon-soru-sayisi { font-size: 10.5px; color: var(--text-dim); background: var(--surface-2); border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+  .konu-akordeon-panel { display: none; padding: 2px 2px 16px 24px; }
+  .konu-akordeon.acik .konu-akordeon-panel { display: block; }
+  .konu-bolum { margin-bottom: 12px; }
+  .konu-bolum:last-of-type { margin-bottom: 14px; }
+  .konu-bolum-baslik { font: 700 11px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--anlat); margin-bottom: 5px; }
+  .konu-bolum-liste { margin: 0; padding-left: 15px; }
+  .konu-bolum-liste li { font-size: 12.5px; line-height: 1.55; color: var(--text-dim); margin-bottom: 4px; }
+  .konu-bolum-bos { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 12px; }
+  .konu-pratik-btn { width: 100%; }
+
   .soru-kart {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1916,7 +1953,7 @@ html[data-theme="light"] nav.alt-bar button.aktif{
       <button class="eylem" id="btn-simulasyon-baslat">Simülasyonu Başlat</button>
     </div>
 
-    <div id="konu-haritasi"></div>
+    <div id="konu-haritasi" class="kart"></div>
 
     <div class="kaynak-grup-basligi"><h3>Gerçek Çıkmış Sınavlar</h3></div>
     <div class="kart" style="background:var(--surface-2); font-size:12px; color:var(--text-dim); line-height:1.5;">
@@ -3642,70 +3679,191 @@ let aktifSinavKonu = 'hepsi';
 
 // Her konu için kısa, sağlam "hap bilgi" özetleri. Türkçe/Genel Kültür konuları
 // çok geniş bir alan kapsadığı için burada değil (o ikisi genel kültür/dil pratiğiyle beslenir).
-const KONU_OZETLERI = {
+const KONU_DETAY = {
+  ag: [
+    { baslik: 'OSI Referans Modeli', maddeler: [
+      'Yedi katman (yukarıdan aşağı): Uygulama, Sunum, Oturum, Taşıma, Ağ, Veri Bağlantı, Fiziksel.',
+      'Uygulama katmanı protokolleri: HTTP, DNS, SNMP, FTP, SMTP.',
+      'Taşıma katmanı: TCP (güvenilir) ve UDP (hızlı, bağlantısız).',
+      'Ağ katmanı: IP, yönlendirme (routing) burada yapılır.',
+      'Veri bağlantı katmanı: MAC adresleri, Ethernet, ARP burada çalışır.',
+    ]},
+    { baslik: 'IP Adresleme ve Alt Ağlar', maddeler: [
+      'A sınıfı: 1-126, B sınıfı: 128-191, C sınıfı: 192-223 ile başlar.',
+      'Alt ağ maskesi → host bit sayısı → 2^host − 2 = kullanılabilir adres sayısı (ağ ve broadcast adresi hariç tutulur).',
+      '/24 = 255.255.255.0 (blok 256), /27 = ...224 (blok 32), /28 = ...240 (blok 16), /26 = ...192 (blok 64).',
+    ]},
+    { baslik: 'Ağ Cihazları', maddeler: [
+      'Repeater: sinyali yeniden üretir, güçlendirir — akıllı değildir.',
+      'Hub: gelen sinyali tüm portlara aynen gönderir, MAC tablosu tutmaz.',
+      'Switch: MAC adres tablosu tutar, veriyi doğru porta yönlendirir.',
+      'Router: farklı ağlar arasında IP\'ye göre yönlendirme yapar.',
+    ]},
+    { baslik: 'Yönlendirme Protokolleri', maddeler: [
+      'İç ağ (IGP): RIP, OSPF, EIGRP.',
+      'Dış ağ / otonom sistemler arası (EGP): yalnızca BGP.',
+    ]},
+    { baslik: 'TCP ve UDP Farkı', maddeler: [
+      'UDP: bağlantısız, güvenilmez ama hızlı — akış/tıkanıklık kontrolü YOK.',
+      'TCP: bağlantı kurar, güvenilir teslimat sağlar, akış ve tıkanıklık kontrolü VAR.',
+    ]},
+  ],
   mikroislemci: [
-    'Veri yolu genişliği = bir seferde taşınan bit sayısı (örn. 64-bit CPU).',
-    'Komut çevrimi: Fetch (getir) → Decode (çöz) → Execute (yürüt).',
-    'Program Sayacı (PC): bir sonraki komutun bellek adresini tutar.',
-    'Komut Yazmacı (IR): o an yürütülen komutu tutar.',
+    { baslik: 'Komut Çevrimi', maddeler: [
+      'Fetch (getir) → Decode (çöz) → Execute (yürüt) sırasıyla işler.',
+      'Program Sayacı (PC): bir sonraki komutun bellek adresini tutar.',
+      'Komut Yazmacı (IR): o an yürütülmekte olan komutu tutar.',
+    ]},
+    { baslik: 'Veri Yolu ve Bellek', maddeler: [
+      'Veri yolu genişliği = bir seferde taşınan bit sayısı (örn. 64-bit CPU).',
+      'PROM: bir kez yazılır, değiştirilemez. EPROM/EEPROM: silinip yeniden yazılabilir.',
+    ]},
   ],
   veritabani: [
-    'WHERE satır bazlı filtreler; HAVING gruplanmış (aggregate) sonuçları filtreler. WHERE içinde SUM/COUNT/AVG kullanılamaz.',
-    'GROUP BY, SELECT listesindeki aggregate olmayan her sütunu içermelidir.',
-    '1NF: tekrar eden/çok değerli alan yok. 2NF: 1NF + kısmi bağımlılık yok. 3NF: 2NF + geçişli bağımlılık yok.',
-    'Bir ilişki 3NF sağlıyorsa otomatik olarak 1NF ve 2NF\'yi de sağlar (hiyerarşik yapı). BCNF daha katıdır, garanti edilmez.',
+    { baslik: 'WHERE ve HAVING Farkı', maddeler: [
+      'WHERE satır bazlı filtreler; içinde SUM/COUNT/AVG gibi aggregate fonksiyonlar kullanılamaz.',
+      'HAVING, GROUP BY ile gruplanmış sonuçları filtreler; aggregate fonksiyonlar burada kullanılabilir.',
+      'GROUP BY, SELECT listesindeki aggregate olmayan her sütunu içermelidir.',
+    ]},
+    { baslik: 'Normal Formlar', maddeler: [
+      '1NF: tekrar eden veya çok değerli alan yok.',
+      '2NF: 1NF + kısmi bağımlılık yok (birleşik anahtarlarda geçerli).',
+      '3NF: 2NF + geçişli bağımlılık yok.',
+      'Bir ilişki 3NF sağlıyorsa otomatik olarak 1NF ve 2NF\'yi de sağlar. BCNF daha katıdır, otomatik garanti edilmez.',
+    ]},
+    { baslik: 'Temel SQL Komutları', maddeler: [
+      'DDL (yapı): CREATE, ALTER, DROP.',
+      'DML (veri): SELECT, INSERT, UPDATE, DELETE.',
+      'JOIN türleri: INNER (eşleşenler), LEFT/RIGHT (bir taraf tam + eşleşenler), FULL OUTER (ikisi de tam).',
+    ]},
   ],
   isletim: [
-    'Process durumları: Yeni → Hazır → Çalışıyor → Bekliyor → Sonlandı.',
-    'Round Robin: her sürece eşit zaman dilimi (time quantum) verir, adildir.',
-    'FCFS: ilk gelen ilk çalışır. SJF: en kısa iş önce. Priority: öncelik değerine göre.',
-    'Android = mobil (Linux çekirdekli). UNIX/Fedora/Ubuntu = masaüstü/sunucu Linux/Unix türevleri.',
+    { baslik: 'Process (Süreç) Durumları', maddeler: [
+      'Yeni → Hazır → Çalışıyor → Bekliyor → Sonlandı sırasıyla ilerler.',
+    ]},
+    { baslik: 'CPU Zamanlama Algoritmaları', maddeler: [
+      'FCFS (First Come First Served): ilk gelen ilk çalışır, basit ama bekleme süresi adaletsiz olabilir.',
+      'SJF (Shortest Job First): en kısa iş önce çalışır, ortalama bekleme süresini azaltır.',
+      'Round Robin: her sürece eşit zaman dilimi (time quantum) verir, adildir.',
+      'Priority: öncelik değerine göre çalışır; düşük öncelikli süreçlerde açlık (starvation) riski vardır.',
+    ]},
+    { baslik: 'Açık Kaynak İşletim Sistemleri', maddeler: [
+      'Linux tabanlı: Ubuntu, Pardus, Fedora, Android (mobil).',
+      'Mac OS açık kaynaklı DEĞİLDİR.',
+    ]},
   ],
   mantik: [
-    'Half adder: 2 giriş (A,B), 2 çıkış (Sum, Carry). Full adder: 3 giriş (A,B,Cin), 2 çıkış.',
-    'NOT tek girişlidir. AND/OR/XOR/NAND/NOR/XNOR en az iki giriş alır.',
-    'Temel kapılar: AND, OR, NOT. Bunlardan türetilenler: NAND, NOR, XOR, XNOR ("XAND" diye bir kapı yoktur).',
-    '¬p ∨ q, mantıksal olarak p → q (p ise q) ile eşdeğerdir.',
+    { baslik: 'Toplayıcı (Adder) Devreleri', maddeler: [
+      'Half adder: 2 giriş (A, B), 2 çıkış (Sum, Carry).',
+      'Full adder: 3 giriş (A, B, Cin), 2 çıkış (Sum, Cout).',
+    ]},
+    { baslik: 'Mantık Kapıları', maddeler: [
+      'NOT tek girişlidir. AND/OR/XOR/NAND/NOR/XNOR en az iki giriş alır.',
+      'Temel kapılar: AND, OR, NOT. Türetilenler: NAND, NOR, XOR, XNOR.',
+    ]},
+    { baslik: 'Önerme Eşdeğerlikleri', maddeler: [
+      '¬p ∨ q ifadesi, mantıksal olarak p → q (p ise q) ile eşdeğerdir.',
+    ]},
   ],
   kesikli: [
-    'Antisimetrik bağıntı: (a,b)∈R ve (b,a)∈R ise a=b olmalı; a≠b için ikisi birden bulunamaz.',
-    'Kombinasyon C(n,r) = n! / (r!(n-r)!) — sıra önemsizse kombinasyon kullanılır.',
-    'Koşullu sayma problemlerinde ("tek sayıda" gibi) durumları ayrı hesaplayıp topla.',
+    { baslik: 'Bağıntı Türleri', maddeler: [
+      'Antisimetrik bağıntı: (a,b)∈R ve (b,a)∈R ise a=b olmalıdır; a≠b için ikisi birden bulunamaz.',
+    ]},
+    { baslik: 'Sayma Teknikleri', maddeler: [
+      'Kombinasyon C(n,r) = n! / (r!(n−r)!) — sıra önemsizse kullanılır.',
+      'Koşullu sayma problemlerinde ("tek sayıda" gibi) durumları ayrı hesaplayıp topla.',
+    ]},
   ],
   algoritma: [
-    'Böl-Fethet: Böl (Divide) → Alt problemleri çöz (Conquer) → Birleştir (Combine). Örnek: Merge Sort, Quick Sort.',
-    'Algoritma kriterleri: Doğruluk (her geçerli girdi için doğru çıktı), Verimlilik, Sonluluk.',
-    'Özyinelemeli (recursive) kodu çözerken: taban durumunu (base case) bul, küçük bir örnekle elle işlet.',
+    { baslik: 'Böl-Fethet (Divide & Conquer)', maddeler: [
+      'Böl (Divide) → Alt problemleri çöz (Conquer) → Birleştir (Combine).',
+      'Örnekler: Merge Sort, Quick Sort.',
+    ]},
+    { baslik: 'Algoritma Kriterleri', maddeler: [
+      'Doğruluk: her geçerli girdi için doğru çıktı üretmeli.',
+      'Verimlilik ve sonluluk: sınırlı adımda bitmeli.',
+    ]},
+    { baslik: 'Özyineleme (Recursion)', maddeler: [
+      'Bir taban durumu (base case) mutlaka olmalıdır, yoksa sonsuz döngüye girer.',
+      'Çözerken küçük bir örnekle elle işletmek en güvenli yöntemdir.',
+    ]},
   ],
   veriyapisi: [
-    'BST (ikili arama ağacı): sol < kök < sağ. AVL ve Kırmızı-Siyah ağaçlar dengelenmiş BST\'dir. Heap BST DEĞİLDİR.',
-    'Kuyruk (Queue) = FIFO, giriş bir uçtan (rear), çıkış diğer uçtan (front). Yığın (Stack) = LIFO.',
-    'Ağaç gezinme: Inorder (sol-kök-sağ) → BST\'de sıralı liste verir. Preorder (kök-sol-sağ). Postorder (sol-sağ-kök).',
+    { baslik: 'Ağaç Yapıları', maddeler: [
+      'BST (ikili arama ağacı): sol < kök < sağ kuralı geçerlidir.',
+      'AVL ve Kırmızı-Siyah ağaçlar, dengelenmiş BST türleridir.',
+      'Heap, BST DEĞİLDİR — farklı bir sıralama kuralı kullanır.',
+    ]},
+    { baslik: 'Kuyruk ve Yığın', maddeler: [
+      'Kuyruk (Queue) = FIFO: giriş bir uçtan (rear), çıkış diğer uçtan (front).',
+      'Yığın (Stack) = LIFO: son giren ilk çıkar.',
+    ]},
+    { baslik: 'Ağaç Gezinme Yöntemleri', maddeler: [
+      'Inorder (sol-kök-sağ): BST\'de sıralı liste verir.',
+      'Preorder (kök-sol-sağ), Postorder (sol-sağ-kök).',
+    ]},
   ],
   web: [
-    'Array: push() sona ekler, pop() sondan çıkarır, shift()/unshift() baştan çıkarır/ekler.',
-    '<img> resim, <a> link, <form> form etiketidir.',
-    'CSS Box Model (dıştan içe): margin → border → padding → content.',
-    'JS koşul: if/else if/else. Döngüler: for, while, do-while.',
+    { baslik: 'JavaScript Dizi Metotları', maddeler: [
+      'push() sona ekler, pop() sondan çıkarır.',
+      'shift() baştan çıkarır, unshift() baştan ekler.',
+    ]},
+    { baslik: 'Temel HTML Etiketleri', maddeler: [
+      '<img> resim, <a> bağlantı (link), <form> form etiketidir.',
+      '<head> başlık/meta bilgisi, <body> görünen içerik.',
+    ]},
+    { baslik: 'CSS Box Model', maddeler: [
+      'Dıştan içe sıralama: margin → border → padding → content.',
+    ]},
+    { baslik: 'JavaScript Kontrol Yapıları', maddeler: [
+      'Koşul: if / else if / else. Döngüler: for, while, do-while.',
+    ]},
   ],
   programlama: [
-    'Sonsuz döngüyü fark et: while koşulunun hiç yanlış olamayacağı durumlara dikkat et (örn. sayaç yanlış yönde ilerliyorsa).',
-    'Değer takası (swap) için mutlaka bir geçici (temp) değişken gerekir.',
-    'İç içe döngülerde: dıştaki döngü her turda içtekini baştan çalıştırır — içtekinin toplam etkisini dıştakine yansıt.',
-    'for(başlangıç;koşul;artış){gövde} ⇔ başlangıç; while(koşul){gövde; artış;}',
-  ],
-  ag: [
-    'Alt ağ maskesi → host bit sayısı → 2^host - 2 = kullanılabilir adres (ağ ve broadcast adresleri hariç).',
-    '/24=255.255.255.0 (blok 256), /27=...224 (blok 32), /28=...240 (blok 16), /26=...192 (blok 64).',
-    'IGP (iç ağ): RIP, OSPF, EIGRP. EGP (dış ağ, otonom sistemler arası): yalnızca BGP.',
-    'UDP: bağlantısız, güvenilmez, hızlı — akış/tıkanıklık kontrolü YOK. TCP: güvenilir, bu kontroller VAR.',
-    'Katmanlar: Uygulama (HTTP, DNS, SNMP) → Taşıma (TCP, UDP) → Ağ (IP) → Bağlantı (ARP, Ethernet).',
+    { baslik: 'Döngü Hataları', maddeler: [
+      'Sonsuz döngüyü fark et: while koşulunun hiç yanlış olamayacağı durumlara dikkat (örn. sayaç yanlış yönde ilerliyorsa).',
+    ]},
+    { baslik: 'Değişken Takası (Swap)', maddeler: [
+      'İki değişkenin değerini takas etmek için mutlaka bir geçici (temp) değişken gerekir.',
+    ]},
+    { baslik: 'İç İçe Döngüler', maddeler: [
+      'Dıştaki döngü her turda içtekini baştan çalıştırır — içtekinin toplam etkisini dıştakine yansıtarak hesapla.',
+    ]},
+    { baslik: 'for / while Dönüşümü', maddeler: [
+      'for(başlangıç; koşul; artış){gövde} ⇔ başlangıç; while(koşul){gövde; artış;}',
+    ]},
   ],
   kanun657: [
-    'Memur sınıfları: Genel İdare, Teknik, Sağlık, Eğitim-Öğretim, Avukatlık, Din, Emniyet, Jandarma, Mülki İdare Amirliği, Milli İstihbarat.',
-    'Tarafsızlık ilkesi: siyasi partiye üye olamama, ayrım yapmama, ideolojik beyanda bulunmama.',
-    'Genel idare esaslarına göre yürütülen asli/sürekli kamu hizmetini yürütenler "memur" sayılır.',
-    'Olağanüstü hâllerde atama sürelerini kısaltma yetkisi Cumhurbaşkanı\'na aittir.',
+    { baslik: 'Memur Sınıfları', maddeler: [
+      'Genel İdare, Teknik, Sağlık, Eğitim-Öğretim, Avukatlık, Din, Emniyet, Jandarma, Mülki İdare Amirliği, Milli İstihbarat.',
+    ]},
+    { baslik: 'Tarafsızlık İlkesi', maddeler: [
+      'Siyasi partiye üye olamama, ayrım yapmama, ideolojik beyanda bulunmama.',
+    ]},
+    { baslik: 'Genel Tanım', maddeler: [
+      'Genel idare esaslarına göre yürütülen asli/sürekli kamu hizmetini yürütenler "memur" sayılır.',
+      'Olağanüstü hâllerde atama sürelerini kısaltma yetkisi Cumhurbaşkanı\'na aittir.',
+    ]},
+  ],
+  turkce: [
+    { baslik: 'Yazım Kuralları', maddeler: [
+      'Özel isimler (kurum, kitap, eser adları) büyük harfle başlar ve tam ismiyle yazılır.',
+      'Birleşik kelimelerde ayrı/bitişik yazım, kelimenin anlam kaymasına uğrayıp uğramadığına bakılarak belirlenir.',
+    ]},
+    { baslik: 'Anlatım Bozuklukları ve Öge Dizilişi', maddeler: [
+      'Cümledeki özne, nesne, tümleç ve yüklem sırası; karşılaştırma sorularında cümleler öge dizilişi bakımından eşleştirilir.',
+      'Sözcüklerin cümle içindeki gerçek/mecaz anlam kullanımına dikkat edilmelidir (örn. "oturmak" fiilinin farklı anlamları).',
+    ]},
+  ],
+  genelkultur: [
+    { baslik: 'Atatürk İlke ve İnkılapları', maddeler: [
+      '3 Mart 1924: Halifeliğin kaldırılması, Şeriye ve Evkaf Vekâletinin kaldırılması, Tevhid-i Tedrisat Kanunu.',
+      'Laiklik ilkesi: din ve devlet işlerinin ayrılığı, inanç hürriyeti.',
+    ]},
+    { baslik: 'T.C. Anayasası Temelleri', maddeler: [
+      'Değiştirilemeyecek hükümler: devletin şekli, Cumhuriyetin nitelikleri, devletin bütünlüğü.',
+      'Sosyal ve ekonomik haklar: eğitim, çalışma, sağlık, sosyal güvenlik gibi başlıkları kapsar.',
+    ]},
   ],
 };
 
@@ -3714,35 +3872,64 @@ function soruSonuclariniGetir() {
   return ham ? JSON.parse(ham) : {};
 }
 
+let acikKonuKey = null;
+
 function konuHaritasiniCiz() {
   const sonuclar = soruSonuclariniGetir();
   const kutu = document.getElementById('konu-haritasi');
 
-  kutu.innerHTML = '<div class="kart">' + KONU_LISTESI.map(k => {
+  kutu.innerHTML = KONU_LISTESI.map(k => {
     const buKonununSorulari = SORU_BANKASI.filter(s => s.konu === k.key);
     const denenenler = buKonununSorulari.filter(s => sonuclar[s.id] !== undefined);
     const dogrular = denenenler.filter(s => sonuclar[s.id].dogruMu === true);
     const yuzde = denenenler.length ? Math.round((dogrular.length / denenenler.length) * 100) : 0;
     const renk = denenenler.length === 0 ? 'var(--text-dim)' : yuzde >= 70 ? 'var(--ing)' : yuzde >= 40 ? 'var(--isg)' : '#d16f6f';
-    const ozet = KONU_OZETLERI[k.key];
+    const bolumler = KONU_DETAY[k.key];
+    const acik = acikKonuKey === k.key;
 
-    const satirHtml = `
-      <div class="konu-satir">
-        <div class="konu-ad">${k.ad}</div>
-        <div class="konu-agirlik">${k.agirlik} soru</div>
-        <div class="konu-bar-dis"><div class="konu-bar-ic" style="width:${denenenler.length ? yuzde : 0}%; background:${renk}"></div></div>
-        <div class="konu-yuzde" style="color:${renk}">${denenenler.length ? yuzde + '%' : '—'}</div>
+    return `
+      <div class="konu-akordeon ${acik ? 'acik' : ''}" data-konu-key="${k.key}">
+        <button class="konu-akordeon-baslik" type="button">
+          <span class="konu-akordeon-ok">›</span>
+          <span class="konu-akordeon-ad">${k.ad}</span>
+          <span class="konu-akordeon-sag">
+            ${denenenler.length ? `<span class="konu-akordeon-yuzde" style="color:${renk}">${yuzde}%</span>` : ''}
+            <span class="konu-akordeon-soru-sayisi">${buKonununSorulari.length} soru</span>
+          </span>
+        </button>
+        <div class="konu-akordeon-panel">
+          ${bolumler ? bolumler.map(b => `
+            <div class="konu-bolum">
+              <div class="konu-bolum-baslik">${b.baslik}</div>
+              <ul class="konu-bolum-liste">${b.maddeler.map(m => `<li>${m}</li>`).join('')}</ul>
+            </div>`).join('') : '<div class="konu-bolum-bos">Bu konu için ayrıntılı özet henüz eklenmedi.</div>'}
+          <button class="eylem ikincil konu-pratik-btn" data-konu-pratik="${k.key}" type="button">Bu Konudan Soru Çöz →</button>
+        </div>
       </div>`;
+  }).join('');
 
-    if (!ozet) return satirHtml;
+  kutu.querySelectorAll('.konu-akordeon-baslik').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const kart = btn.closest('.konu-akordeon');
+      const key = kart.dataset.konuKey;
+      acikKonuKey = (acikKonuKey === key) ? null : key;
+      konuHaritasiniCiz();
+      if (acikKonuKey) {
+        setTimeout(() => document.querySelector(`.konu-akordeon[data-konu-key="${acikKonuKey}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+      }
+    });
+  });
 
-    const ozetId = 'ozet-' + k.key;
-    const ozetHtml = `
-      <button class="ozet-toggle" onclick="document.getElementById('${ozetId}').classList.toggle('acik')">📌 Hap Bilgi</button>
-      <div class="ozet-kutu" id="${ozetId}"><ul>${ozet.map(o => `<li>${o}</li>`).join('')}</ul></div>`;
-
-    return satirHtml + ozetHtml;
-  }).join('') + '</div>';
+  kutu.querySelectorAll('[data-konu-pratik]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.konuPratik;
+      document.querySelectorAll('#sinav-filtreler button').forEach(f => f.classList.toggle('aktif', f.dataset.konu === key));
+      aktifSinavKonu = key;
+      soruListesiniCiz();
+      document.getElementById('sinav-filtreler')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
 
   // Filtre butonlarını da (ilk girişte) oluştur
   const filtreKutu = document.getElementById('sinav-filtreler');
