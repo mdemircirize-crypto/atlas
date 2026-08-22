@@ -331,10 +331,11 @@
   .kart {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
+    border-radius: 18px;
+    padding: 17px 16px;
     margin-bottom: 14px;
-    transition: border-color 0.2s ease;
+    box-shadow: 0 10px 28px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.08);
+    transition: border-color 0.2s ease, transform .18s ease, box-shadow .18s ease;
   }
   .kart:focus-within { border-color: var(--cephe-renk, var(--it)); }
 
@@ -342,7 +343,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 600;
     margin-bottom: 10px;
   }
@@ -1521,9 +1522,16 @@ html[data-theme="light"] nav.alt-bar button.aktif{
 /* ============================================================
    ATLAS — GERÇEK ÇIKMIŞ SINAVLAR (birebir gerçek sorular)
    ============================================================ */
-.gecmis-sinav-kart{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:9px}
+.gecmis-sinav-kart{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:0 10px 28px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.08)}
+.gecmis-sinav-kapak{position:relative;height:88px;display:flex;align-items:center;padding:0 16px;overflow:hidden}
+.gecmis-sinav-kapak::before{content:'';position:absolute;inset:0;opacity:.14;background-image:radial-gradient(circle at 15% 30%, #fff 0, transparent 45%),radial-gradient(circle at 85% 75%, #fff 0, transparent 40%)}
+.gecmis-sinav-amblem{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;margin-right:12px;border:1px solid rgba(255,255,255,.25)}
+.gecmis-sinav-kapak-metin{color:#fff;min-width:0}
+.gecmis-sinav-kapak-kurum{font:700 14px 'Space Grotesk';line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.2)}
+.gecmis-sinav-kapak-alt{font-size:10.5px;opacity:.85;margin-top:2px;letter-spacing:.02em}
+.gecmis-sinav-govde{padding:13px 15px 15px}
 .gecmis-sinav-ust{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.gecmis-sinav-baslik{font:700 14.5px 'Space Grotesk'}
+.gecmis-sinav-baslik{font:700 13.5px 'Space Grotesk';line-height:1.35}
 .gecmis-sinav-alt{font-size:11.5px;color:var(--text-dim);margin-top:2px}
 .gecmis-sinav-rozet{flex-shrink:0;font:700 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--isg) 15%,transparent);color:var(--isg);white-space:nowrap}
 .gecmis-sinav-en-iyi{font-size:11.5px;color:var(--text-dim);margin-bottom:10px}
@@ -3391,22 +3399,42 @@ function sinavSkorKaydet(sinavId, dogruSayisi, toplamSoru) {
   localStorage.setItem(SINAV_SONUC_GECMISI_ANAHTARI, JSON.stringify(gecmis));
 }
 
+const GECMIS_SINAV_KAPAK = {
+  'Sağlık Bakanlığı ve Bağlı Kuruluşları': { gradient: 'linear-gradient(135deg,#0f8a7c,#0a5c68)', ikon: '⚕' },
+  'Aile ve Sosyal Hizmetler Bakanlığı': { gradient: 'linear-gradient(135deg,#c2477a,#7a2f6b)', ikon: '🤝' },
+  'Adalet Bakanlığı': { gradient: 'linear-gradient(135deg,#8a6d1f,#5c481a)', ikon: '⚖' },
+  'İçişleri Bakanlığı': { gradient: 'linear-gradient(135deg,#2f5fa8,#1c3a6b)', ikon: '🛡' },
+};
+function gecmisSinavKapakBul(kurum) {
+  return GECMIS_SINAV_KAPAK[kurum] || { gradient: 'linear-gradient(135deg,#3a4a5c,#22303e)', ikon: '📘' };
+}
+
 function gecmisSinavListesiCiz() {
   const kutu = document.getElementById('gecmis-sinav-liste');
   const gecmisSkor = sinavSkorGecmisiGetir();
   kutu.innerHTML = GECMIS_SINAVLAR.map(s => {
     const skor = gecmisSkor[s.id];
+    const kapak = gecmisSinavKapakBul(s.kurum);
     return `
       <div class="gecmis-sinav-kart">
-        <div class="gecmis-sinav-ust">
-          <div>
-            <div class="gecmis-sinav-baslik">${s.kurum}</div>
-            <div class="gecmis-sinav-alt">${s.baslik} · ${s.tarih} · ${s.sorular.length} soru / ${s.sure} dk</div>
+        <div class="gecmis-sinav-kapak" style="background:${kapak.gradient}">
+          <div class="gecmis-sinav-amblem">${kapak.ikon}</div>
+          <div class="gecmis-sinav-kapak-metin">
+            <div class="gecmis-sinav-kapak-kurum">${s.kurum}</div>
+            <div class="gecmis-sinav-kapak-alt">Bilgisayar Mühendisi · ${s.tarih}</div>
           </div>
-          <div class="gecmis-sinav-rozet">Gerçek Sınav</div>
         </div>
-        ${skor ? `<div class="gecmis-sinav-en-iyi">En iyi sonucun: <b>${skor.enIyi}/${skor.toplam}</b> · son deneme: ${skor.sonDeneme}/${skor.toplam} (${skor.tarih})</div>` : ''}
-        <button class="eylem" data-sinav-baslat="${s.id}" type="button">${skor ? 'Tekrar Çöz' : 'Sınavı Başlat'}</button>
+        <div class="gecmis-sinav-govde">
+          <div class="gecmis-sinav-ust">
+            <div>
+              <div class="gecmis-sinav-baslik">${s.baslik}</div>
+              <div class="gecmis-sinav-alt">${s.sorular.length} soru · ${s.sure} dk</div>
+            </div>
+            <div class="gecmis-sinav-rozet">Gerçek Sınav</div>
+          </div>
+          ${skor ? `<div class="gecmis-sinav-en-iyi">En iyi sonucun: <b>${skor.enIyi}/${skor.toplam}</b> · son deneme: ${skor.sonDeneme}/${skor.toplam} (${skor.tarih})</div>` : ''}
+          <button class="eylem" data-sinav-baslat="${s.id}" type="button">${skor ? 'Tekrar Çöz' : 'Sınavı Başlat'}</button>
+        </div>
       </div>`;
   }).join('');
 
