@@ -842,6 +842,18 @@
   .konu-bolum-bos { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 12px; }
   .konu-pratik-btn { width: 100%; }
 
+/* ============ GÜNLÜK KARTLAR — akordeon (Bugün sekmesi) ============ */
+.gunluk-blok { padding: 0; overflow: hidden; }
+.gunluk-baslik { width: 100%; padding: 15px 16px; margin: 0; cursor: pointer; background: none; border: none; font-family: 'IBM Plex Sans', sans-serif; }
+.gunluk-durum-noktasi { width: 8px; height: 8px; border-radius: 50%; background: var(--cephe-renk, var(--anlat)); opacity: 0; flex-shrink: 0; margin-left: auto; }
+.gunluk-durum-noktasi.dolu { opacity: 1; }
+.gunluk-ok { flex-shrink: 0; font-size: 17px; color: var(--text-dim); transition: transform .18s ease; margin-left: 4px; }
+.gunluk-blok.acik .gunluk-ok { transform: rotate(90deg); color: var(--cephe-renk, var(--anlat)); }
+.gunluk-blok .gunluk-durum-noktasi.dolu + .gunluk-ok { margin-left: 4px; }
+.gunluk-panel { display: none; padding: 0 16px 16px; }
+.gunluk-blok.acik .gunluk-panel { display: block; }
+.gunluk-panel-ust { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+
   .soru-kart {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1489,7 +1501,7 @@ html[data-theme="light"] nav.alt-bar button.aktif{
 .mikrofon-btn.dikte-aktif{background:color-mix(in srgb,var(--isg) 20%,transparent);color:var(--isg);border-color:var(--isg);animation:dikteNabiz 1.1s ease-in-out infinite}
 @keyframes dikteNabiz{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--isg) 35%,transparent)}50%{box-shadow:0 0 0 6px transparent}}
 .gunluk-etiketler{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.gunluk-etiket{border:1px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:999px;padding:5px 10px;font-size:11px;cursor:pointer}
+.gunluk-etiket{border:1px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:999px;padding:6px 11px;font-size:12px;cursor:pointer}
 .gunluk-etiket:active{transform:scale(.96)}
 .ajanda-giris-satir{display:flex;gap:8px;margin-bottom:10px}
 .ajanda-giris-satir input{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;padding:10px 12px}
@@ -1729,70 +1741,94 @@ html[data-theme="light"] nav.alt-bar button.aktif{
       <div id="dash-kitap-icerik" style="font-size:13px; color:var(--text-dim);"></div>
     </div>
 
-    <div class="kart" style="--cephe-renk:var(--it);">
-      <div class="alan-basligi">
+    <div class="kart gunluk-blok" data-alan="it" style="--cephe-renk:var(--it);">
+      <button class="alan-basligi gunluk-baslik" type="button">
         <div class="cephe-ikon" style="background:var(--it)22">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--it)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg>
         </div>
         <span>Bilgi İşlem / Mühendislik</span>
-        <button class="mikrofon-btn" id="mic-it" type="button" title="Sesle söyle">🎙</button>
+        <span class="gunluk-durum-noktasi" id="durum-it"></span>
+        <span class="gunluk-ok">›</span>
+      </button>
+      <div class="gunluk-panel">
+        <div class="gunluk-panel-ust">
+          <button class="mikrofon-btn" id="mic-it" type="button" title="Sesle söyle">🎙</button>
+        </div>
+        <div class="gunluk-etiketler">
+          <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Bir sorunu çözdüm" type="button">Bir sorunu çözdüm</button>
+          <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Yeni bir şey okudum" type="button">Yeni bir şey okudum</button>
+          <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Script/otomasyon yazdım" type="button">Script/otomasyon yazdım</button>
+          <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Ağ/güvenlik ayarı yaptım" type="button">Ağ/güvenlik ayarı yaptım</button>
+        </div>
+        <textarea id="giris-it" placeholder="Bugün ne okudun, ne uyguladın?"></textarea>
       </div>
-      <div class="gunluk-etiketler">
-        <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Bir sorunu çözdüm" type="button">Bir sorunu çözdüm</button>
-        <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Yeni bir şey okudum" type="button">Yeni bir şey okudum</button>
-        <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Script/otomasyon yazdım" type="button">Script/otomasyon yazdım</button>
-        <button class="gunluk-etiket" data-hedef="giris-it" data-metin="Ağ/güvenlik ayarı yaptım" type="button">Ağ/güvenlik ayarı yaptım</button>
-      </div>
-      <textarea id="giris-it" placeholder="Bugün ne okudun, ne uyguladın?"></textarea>
     </div>
 
-    <div class="kart" style="--cephe-renk:var(--isg);">
-      <div class="alan-basligi">
+    <div class="kart gunluk-blok" data-alan="isg" style="--cephe-renk:var(--isg);">
+      <button class="alan-basligi gunluk-baslik" type="button">
         <div class="cephe-ikon" style="background:var(--isg)22">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--isg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z"/></svg>
         </div>
         <span>İSG</span>
-        <button class="mikrofon-btn" id="mic-isg" type="button" title="Sesle söyle">🎙</button>
+        <span class="gunluk-durum-noktasi" id="durum-isg"></span>
+        <span class="gunluk-ok">›</span>
+      </button>
+      <div class="gunluk-panel">
+        <div class="gunluk-panel-ust">
+          <button class="mikrofon-btn" id="mic-isg" type="button" title="Sesle söyle">🎙</button>
+        </div>
+        <div class="gunluk-etiketler">
+          <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Bir mevzuat maddesi okudum" type="button">Mevzuat maddesi okudum</button>
+          <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Sahada gözlem yaptım" type="button">Sahada gözlem yaptım</button>
+          <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Bir vaka inceledim" type="button">Bir vaka inceledim</button>
+          <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Risk değerlendirmesi yaptım" type="button">Risk değerlendirmesi yaptım</button>
+        </div>
+        <textarea id="giris-isg" placeholder="Bir mevzuat maddesi, bir vaka, bir gözlem..."></textarea>
       </div>
-      <div class="gunluk-etiketler">
-        <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Bir mevzuat maddesi okudum" type="button">Mevzuat maddesi okudum</button>
-        <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Sahada gözlem yaptım" type="button">Sahada gözlem yaptım</button>
-        <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Bir vaka inceledim" type="button">Bir vaka inceledim</button>
-        <button class="gunluk-etiket" data-hedef="giris-isg" data-metin="Risk değerlendirmesi yaptım" type="button">Risk değerlendirmesi yaptım</button>
-      </div>
-      <textarea id="giris-isg" placeholder="Bir mevzuat maddesi, bir vaka, bir gözlem..."></textarea>
     </div>
 
-    <div class="kart" style="--cephe-renk:var(--anlat);">
-      <div class="alan-basligi">
+    <div class="kart gunluk-blok" data-alan="anlat" style="--cephe-renk:var(--anlat);">
+      <button class="alan-basligi gunluk-baslik" type="button">
         <div class="cephe-ikon" style="background:var(--anlat)22">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--anlat)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
         </div>
         <span>Anlat Pratiği</span>
-        <button class="mikrofon-btn" id="mic-anlat" type="button" title="Sesle söyle">🎙</button>
+        <span class="gunluk-durum-noktasi" id="durum-anlat"></span>
+        <span class="gunluk-ok">›</span>
+      </button>
+      <div class="gunluk-panel">
+        <div class="gunluk-panel-ust">
+          <button class="mikrofon-btn" id="mic-anlat" type="button" title="Sesle söyle">🎙</button>
+        </div>
+        <div class="gunluk-etiketler">
+          <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Sesli pratik yaptım" type="button">Sesli pratik yaptım</button>
+          <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Birine bir şey anlattım" type="button">Birine bir şey anlattım</button>
+          <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Sunum notumu geliştirdim" type="button">Sunum notumu geliştirdim</button>
+        </div>
+        <textarea id="giris-anlat" placeholder="Bugün sesli/yazılı ne anlattın?"></textarea>
       </div>
-      <div class="gunluk-etiketler">
-        <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Sesli pratik yaptım" type="button">Sesli pratik yaptım</button>
-        <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Birine bir şey anlattım" type="button">Birine bir şey anlattım</button>
-        <button class="gunluk-etiket" data-hedef="giris-anlat" data-metin="Sunum notumu geliştirdim" type="button">Sunum notumu geliştirdim</button>
-      </div>
-      <textarea id="giris-anlat" placeholder="Bugün sesli/yazılı ne anlattın?"></textarea>
     </div>
 
-    <div class="kart" style="--cephe-renk:var(--ing);">
-      <div class="alan-basligi">
+    <div class="kart gunluk-blok" data-alan="ing" style="--cephe-renk:var(--ing);">
+      <button class="alan-basligi gunluk-baslik" type="button">
         <div class="cephe-ikon" style="background:var(--ing)22">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--ing)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
         </div>
         <span>İngilizce</span>
-        <button class="mikrofon-btn" id="mic-ing" type="button" title="Sesle söyle">🎙</button>
+        <span class="gunluk-durum-noktasi" id="durum-ing"></span>
+        <span class="gunluk-ok">›</span>
+      </button>
+      <div class="gunluk-panel">
+        <div class="gunluk-panel-ust">
+          <button class="mikrofon-btn" id="mic-ing" type="button" title="Sesle söyle">🎙</button>
+        </div>
+        <div class="gunluk-etiketler">
+          <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Yeni kelime öğrendim" type="button">Yeni kelime öğrendim</button>
+          <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Bir kalıp öğrendim" type="button">Bir kalıp öğrendim</button>
+          <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Bir şey okudum/dinledim" type="button">Bir şey okudum/dinledim</button>
+        </div>
+        <textarea id="giris-ing" placeholder="Yeni kelime, kalıp, okuduğun bir cümle..."></textarea>
       </div>
-      <div class="gunluk-etiketler">
-        <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Yeni kelime öğrendim" type="button">Yeni kelime öğrendim</button>
-        <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Bir kalıp öğrendim" type="button">Bir kalıp öğrendim</button>
-        <button class="gunluk-etiket" data-hedef="giris-ing" data-metin="Bir şey okudum/dinledim" type="button">Bir şey okudum/dinledim</button>
-      </div>
-      <textarea id="giris-ing" placeholder="Yeni kelime, kalıp, okuduğun bir cümle..."></textarea>
     </div>
 
 
@@ -2266,6 +2302,15 @@ function ajandaEkle() {
   girisEl.value = '';
   ajandaListesiCiz();
 }
+// ---- 3e) GÜNLÜK KARTLAR — akordeon aç/kapa ----
+document.querySelectorAll('.gunluk-baslik').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const blok = btn.closest('.gunluk-blok');
+    const acikMi = blok.classList.toggle('acik');
+    blok.dataset.elleKapatildi = acikMi ? '' : '1';
+  });
+});
+
 document.getElementById('btn-ajanda-ekle').addEventListener('click', ajandaEkle);
 document.getElementById('ajanda-giris').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); ajandaEkle(); }
@@ -2471,6 +2516,15 @@ function halkayiGuncelle() {
   document.getElementById('giris-isg').value = bugun.isg || '';
   document.getElementById('giris-anlat').value = bugun.anlat || '';
   document.getElementById('giris-ing').value = bugun.ing || '';
+
+  // Dolu olan alanlarda küçük nokta göstergesi + otomatik açılış (boş olanlar kapalı kalır)
+  [['it', bugun.it], ['isg', bugun.isg], ['anlat', bugun.anlat], ['ing', bugun.ing]].forEach(([alan, deger]) => {
+    const noktaEl = document.getElementById('durum-' + alan);
+    const blokEl = document.querySelector(`.gunluk-blok[data-alan="${alan}"]`);
+    const doluMu = !!(deger && deger.trim());
+    if (noktaEl) noktaEl.classList.toggle('dolu', doluMu);
+    if (blokEl && doluMu && !blokEl.dataset.elleKapatildi) blokEl.classList.add('acik');
+  });
 
   dashboardOzetGuncelle();
 }
